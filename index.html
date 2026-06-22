@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+<html lang="id" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Chat History</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        /* Gaya dasar Material Design */
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: var(--bs-tertiary-bg);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Navbar Material Style */
+        .navbar {
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        /* Area Konten Utama */
+        main {
+            flex: 1;
+            padding: 2rem 0;
+        }
+
+        /* Gaya Gelembung Chat (Material Card) */
+        .chat-card {
+            background: var(--bs-body-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+            border-left: 5px solid #0d6efd; /* Aksen biru di kiri */
+        }
+        
+        .chat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+
+        /* Markdown elemen styling di dalam chat */
+        .chat-card h1, .chat-card h2, .chat-card h3 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        .chat-card pre {
+            background-color: var(--bs-dark-bg-subtle);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #1976d2; /* Warna Material Blue */
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: auto;
+        }
+
+        [data-bs-theme="dark"] footer {
+            background-color: #121212;
+            border-top: 1px solid #333;
+        }
+
+        /* Tombol Toggle Tema */
+        .theme-toggle {
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: white;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #1976d2;">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <span class="material-icons me-2">history</span>
+                Log History
+            </a>
+            <button class="theme-toggle" id="btn-theme" title="Ubah Tema">
+                <span class="material-icons" id="theme-icon">dark_mode</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                
+                <div id="chat-container">
+                    <div class="text-center my-5" id="loading-spinner">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted">Memuat riwayat log...</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container d-flex justify-content-center align-items-center">
+            <span class="material-icons me-2" style="font-size: 1rem;">code</span>
+            <p class="mb-0">Ditenagai oleh GitHub Pages & Markdown</p>
+        </div>
+    </footer>
+
+    <script>
+      // --- 1. FITUR DARK MODE ---
+const btnTheme = document.getElementById('btn-theme');
+const themeIcon = document.getElementById('theme-icon');
+const htmlElement = document.documentElement;
+
+btnTheme.addEventListener('click', () => {
+    const currentTheme = htmlElement.getAttribute('data-bs-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    htmlElement.setAttribute('data-bs-theme', newTheme);
+    themeIcon.textContent = newTheme === 'light' ? 'dark_mode' : 'light_mode';
+});
+
+// --- 2. FITUR OTOMATIS BACA MARKDOWN DARI GITHUB API ---
+
+// UBAH BAGIAN INI SESUAI AKUN GITHUB ANDA
+const GITHUB_USERNAME = 'ahlawisnu'; // Contoh: 'johndoe'
+const GITHUB_REPO = 'laporan-katar';    // Contoh: 'history-chat'
+const FOLDER_NAME = 'posts';             // Nama folder tempat file .md disimpan
+
+async function muatMarkdownOtomatis() {
+    const container = document.getElementById('chat-container');
+    const spinner = document.getElementById('loading-spinner');
+
+    try {
+        // 1. Meminta daftar file dari GitHub API
+        const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${FOLDER_NAME}`;
+        const response = await fetch(apiUrl);
+        
+        if (!response.ok) {
+            throw new Error(`Gagal membaca folder. Pastikan Username (${GITHUB_USERNAME}) dan Repo (${GITHUB_REPO}) benar dan bersifat Public.`);
+        }
+        
+        const dataFiles = await response.json();
+
+        // 2. Menyaring hanya file yang berakhiran .md
+        const markdownFiles = dataFiles.filter(file => file.name.endsWith('.md'));
+
+        if(markdownFiles.length === 0) {
+            spinner.style.display = 'none';
+            container.innerHTML = '<p class="text-center text-muted">Belum ada riwayat chat di folder ini.</p>';
+            return;
+        }
+
+        // Opsional: Membalik urutan agar file terbaru (secara alfabet/angka) muncul paling bawah atau atas
+        // markdownFiles.reverse(); 
+
+        // 3. Melakukan perulangan untuk mengambil isi teks tiap file .md
+        for (const file of markdownFiles) {
+            try {
+                // file.download_url adalah link langsung ke teks mentah file Anda
+                const fileResponse = await fetch(file.download_url);
+                const text = await fileResponse.text();
+
+                // Ubah Markdown jadi HTML
+                const htmlContent = marked.parse(text);
+
+                // Buat gelembung chat
+                const card = document.createElement('div');
+                card.className = 'chat-card';
+                card.innerHTML = htmlContent;
+
+                container.appendChild(card);
+            } catch (err) {
+                console.error(`Gagal memuat isi file ${file.name}:`, err);
+            }
+        }
+    } catch (error) {
+        console.error("Error utama:", error);
+        container.innerHTML = `
+            <div class="chat-card border-start border-danger">
+                <p class="text-danger mb-0"><span class="material-icons align-middle">error</span> ${error.message}</p>
+            </div>`;
+    }
+    
+    // Hilangkan efek loading
+    spinner.style.display = 'none';
+}
+
+// Jalankan script saat halaman selesai dimuat
+document.addEventListener('DOMContentLoaded', muatMarkdownOtomatis);
+
+    </script>
+</body>
+</html>
