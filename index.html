@@ -1,100 +1,183 @@
-
 <!DOCTYPE html>
 <html lang="id" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markdown Chat History</title>
+    <title>Modern Data Landing Page</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        /* Gaya dasar Material Design */
+        :root {
+            /* Warna aksen utama (Teal/Cyan) untuk kesan modern */
+            --primary-accent: #39C5BB; 
+            --primary-accent-dark: #2ba39a;
+            --bg-color-light: #f4f7f6;
+        }
+
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background-color: var(--bs-tertiary-bg);
+            background-color: var(--bg-color-light);
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Navbar Material Style */
-        .navbar {
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        [data-bs-theme="dark"] body {
+            background-color: #121416;
         }
 
-        /* Area Konten Utama */
+        /* --- NAVBAR --- */
+        .navbar {
+            background-color: var(--primary-accent) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- HERO SECTION (Opsional untuk Landing Page) --- */
+        .hero-section {
+            padding: 3rem 0;
+            text-align: center;
+        }
+        .hero-title {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        /* --- ARTIKEL KONTEN --- */
         main {
             flex: 1;
-            padding: 2rem 0;
+            padding-bottom: 4rem;
         }
 
-        /* Gaya Gelembung Chat (Material Card) */
-        .chat-card {
+        .post-article {
             background: var(--bs-body-bg);
             border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin-bottom: 20px;
-            transition: transform 0.2s;
-            border-left: 5px solid #0d6efd; /* Aksen biru di kiri */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            padding: 40px;
+            margin-bottom: 40px;
+            border-top: 5px solid var(--primary-accent);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        [data-bs-theme="dark"] .post-article {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-top: 5px solid var(--primary-accent-dark);
+        }
+
+        /* Typografi Markdown */
+        .post-article h1, .post-article h2, .post-article h3 {
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
         }
         
-        .chat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
-        }
+        .post-article h1 { font-size: 2rem; color: var(--primary-accent); }
+        [data-bs-theme="dark"] .post-article h1 { color: var(--primary-accent-dark); }
 
-        /* Markdown elemen styling di dalam chat */
-        .chat-card h1, .chat-card h2, .chat-card h3 {
-            margin-top: 0;
-            font-size: 1.2rem;
-            font-weight: 500;
-        }
-        .chat-card pre {
+        .post-article pre {
             background-color: var(--bs-dark-bg-subtle);
-            padding: 10px;
-            border-radius: 8px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            border: 1px solid var(--bs-border-color);
         }
 
-        /* Footer */
-        footer {
-            background-color: #1976d2; /* Warna Material Blue */
+        /* --- STYLING KHUSUS TABEL MARKDOWN --- */
+        .post-article table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background-color: var(--bs-body-bg);
+            border-radius: 10px;
+            overflow: hidden; /* Agar lengkungan border-radius terlihat */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid var(--bs-border-color);
+        }
+
+        .post-article th, .post-article td {
+            padding: 16px;
+            border-bottom: 1px solid var(--bs-border-color);
+            text-align: left;
+        }
+
+        /* Header Tabel */
+        .post-article thead th {
+            background-color: var(--primary-accent);
             color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border-bottom: none;
+        }
+
+        [data-bs-theme="dark"] .post-article thead th {
+            background-color: var(--primary-accent-dark);
+            color: #ffffff;
+        }
+
+        /* Efek Zebra (Belang-belang) pada baris tabel */
+        .post-article tbody tr:nth-child(even) {
+            background-color: rgba(57, 197, 187, 0.03);
+        }
+        [data-bs-theme="dark"] .post-article tbody tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Efek Hover pada baris tabel */
+        .post-article tbody tr:hover {
+            background-color: rgba(57, 197, 187, 0.1);
+            transition: background-color 0.2s;
+        }
+        [data-bs-theme="dark"] .post-article tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background-color: #ffffff;
+            border-top: 1px solid var(--bs-border-color);
+            padding: 1.5rem 0;
             text-align: center;
-            padding: 1rem 0;
             margin-top: auto;
         }
-
         [data-bs-theme="dark"] footer {
-            background-color: #121212;
-            border-top: 1px solid #333;
+            background-color: #1a1d20;
         }
 
-        /* Tombol Toggle Tema */
         .theme-toggle {
             cursor: pointer;
             border: none;
-            background: none;
+            background: rgba(255,255,255,0.2);
             color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.4);
         }
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #1976d2;">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="#">
-                <span class="material-icons me-2">history</span>
-                Log History
+                <span class="material-icons me-2">dashboard</span>
+                Data Center
             </a>
             <button class="theme-toggle" id="btn-theme" title="Ubah Tema">
                 <span class="material-icons" id="theme-icon">dark_mode</span>
@@ -102,14 +185,19 @@
         </div>
     </nav>
 
+    <div class="hero-section container">
+        <h2 class="hero-title">Laporan & Pembaruan Sistem</h2>
+        <p class="text-muted">Data dimuat secara otomatis dari repositori secara real-time.</p>
+    </div>
+
     <main class="container">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-lg-9 col-md-11">
                 
-                <div id="chat-container">
+                <div id="content-container">
                     <div class="text-center my-5" id="loading-spinner">
-                        <div class="spinner-border text-primary" role="status"></div>
-                        <p class="mt-2 text-muted">Memuat riwayat log...</p>
+                        <div class="spinner-border text-info" role="status"></div>
+                        <p class="mt-3 text-muted fw-medium">Menyinkronkan data...</p>
                     </div>
                 </div>
 
@@ -118,94 +206,87 @@
     </main>
 
     <footer>
-        <div class="container d-flex justify-content-center align-items-center">
-            <span class="material-icons me-2" style="font-size: 1rem;">code</span>
-            <p class="mb-0">Ditenagai oleh GitHub Pages & Markdown</p>
+        <div class="container d-flex justify-content-center align-items-center text-muted">
+            <span class="material-icons me-2" style="font-size: 1.2rem;">cloud_sync</span>
+            <p class="mb-0 fw-medium">Auto-generated via GitHub API</p>
         </div>
     </footer>
 
     <script>
-      // --- 1. FITUR DARK MODE ---
-const btnTheme = document.getElementById('btn-theme');
-const themeIcon = document.getElementById('theme-icon');
-const htmlElement = document.documentElement;
+        // --- 1. DARK MODE TOGGLE ---
+        const btnTheme = document.getElementById('btn-theme');
+        const themeIcon = document.getElementById('theme-icon');
+        const htmlElement = document.documentElement;
 
-btnTheme.addEventListener('click', () => {
-    const currentTheme = htmlElement.getAttribute('data-bs-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    htmlElement.setAttribute('data-bs-theme', newTheme);
-    themeIcon.textContent = newTheme === 'light' ? 'dark_mode' : 'light_mode';
-});
+        btnTheme.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            htmlElement.setAttribute('data-bs-theme', newTheme);
+            themeIcon.textContent = newTheme === 'light' ? 'dark_mode' : 'light_mode';
+        });
 
-// --- 2. FITUR OTOMATIS BACA MARKDOWN DARI GITHUB API ---
-
-// UBAH BAGIAN INI SESUAI AKUN GITHUB ANDA
-const GITHUB_USERNAME = 'ahlawisnu'; // Contoh: 'johndoe'
-const GITHUB_REPO = 'laporan-katar';    // Contoh: 'history-chat'
-const FOLDER_NAME = 'posts';             // Nama folder tempat file .md disimpan
-
-async function muatMarkdownOtomatis() {
-    const container = document.getElementById('chat-container');
-    const spinner = document.getElementById('loading-spinner');
-
-    try {
-        // 1. Meminta daftar file dari GitHub API
-        const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${FOLDER_NAME}`;
-        const response = await fetch(apiUrl);
+        // --- 2. FETCH MARKDOWN ---
         
-        if (!response.ok) {
-            throw new Error(`Gagal membaca folder. Pastikan Username (${GITHUB_USERNAME}) dan Repo (${GITHUB_REPO}) benar dan bersifat Public.`);
-        }
-        
-        const dataFiles = await response.json();
+        // PASTIKAN MENGUBAH INI SESUAI REPOSITORI ANDA
+        const GITHUB_USERNAME = 'ahlawisnu'; 
+        const GITHUB_REPO = 'laporan-katar';    
+        const FOLDER_NAME = 'posts';             
 
-        // 2. Menyaring hanya file yang berakhiran .md
-        const markdownFiles = dataFiles.filter(file => file.name.endsWith('.md'));
+        // Konfigurasi Marked.js untuk mendukung tabel bawaan GitHub
+        marked.setOptions({
+            gfm: true,
+            breaks: true
+        });
 
-        if(markdownFiles.length === 0) {
-            spinner.style.display = 'none';
-            container.innerHTML = '<p class="text-center text-muted">Belum ada riwayat chat di folder ini.</p>';
-            return;
-        }
+        async function loadContent() {
+            const container = document.getElementById('content-container');
+            const spinner = document.getElementById('loading-spinner');
 
-        // Opsional: Membalik urutan agar file terbaru (secara alfabet/angka) muncul paling bawah atau atas
-        // markdownFiles.reverse(); 
-
-        // 3. Melakukan perulangan untuk mengambil isi teks tiap file .md
-        for (const file of markdownFiles) {
             try {
-                // file.download_url adalah link langsung ke teks mentah file Anda
-                const fileResponse = await fetch(file.download_url);
-                const text = await fileResponse.text();
+                const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${FOLDER_NAME}`;
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) throw new Error("Gagal terhubung ke repositori. Pastikan data akun valid.");
+                
+                const dataFiles = await response.json();
+                const markdownFiles = dataFiles.filter(file => file.name.endsWith('.md'));
 
-                // Ubah Markdown jadi HTML
-                const htmlContent = marked.parse(text);
+                if(markdownFiles.length === 0) {
+                    spinner.style.display = 'none';
+                    container.innerHTML = '<div class="alert alert-info text-center">Belum ada file data yang dipublikasikan.</div>';
+                    return;
+                }
 
-                // Buat gelembung chat
-                const card = document.createElement('div');
-                card.className = 'chat-card';
-                card.innerHTML = htmlContent;
+                // Opsional: Balikkan urutan agar postingan terbaru (misal 02.md) ada di atas
+                // markdownFiles.reverse();
 
-                container.appendChild(card);
-            } catch (err) {
-                console.error(`Gagal memuat isi file ${file.name}:`, err);
+                for (const file of markdownFiles) {
+                    try {
+                        const fileResponse = await fetch(file.download_url);
+                        const text = await fileResponse.text();
+                        const htmlContent = marked.parse(text);
+
+                        const article = document.createElement('article');
+                        article.className = 'post-article';
+                        article.innerHTML = htmlContent;
+
+                        container.appendChild(article);
+                    } catch (err) {
+                        console.error(`Gagal memuat ${file.name}:`, err);
+                    }
+                }
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="post-article border-danger">
+                        <h4 class="text-danger"><span class="material-icons align-middle">error_outline</span> Terjadi Kesalahan</h4>
+                        <p class="text-muted mb-0">${error.message}</p>
+                    </div>`;
             }
+            
+            spinner.style.display = 'none';
         }
-    } catch (error) {
-        console.error("Error utama:", error);
-        container.innerHTML = `
-            <div class="chat-card border-start border-danger">
-                <p class="text-danger mb-0"><span class="material-icons align-middle">error</span> ${error.message}</p>
-            </div>`;
-    }
-    
-    // Hilangkan efek loading
-    spinner.style.display = 'none';
-}
 
-// Jalankan script saat halaman selesai dimuat
-document.addEventListener('DOMContentLoaded', muatMarkdownOtomatis);
-
+        document.addEventListener('DOMContentLoaded', loadContent);
     </script>
 </body>
 </html>
